@@ -1,0 +1,27 @@
+{
+  "name": "fortuneteller",
+  "version": "1.0.0",
+  "description": "Get your fortune here!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/instafluff/FortuneTeller.git"
+  },
+  "author": "Instafluff",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/instafluff/FortuneTeller/issues"
+  },
+  "homepage": "https://github.com/instafluff/FortuneTeller#readme",
+  "dependencies": {
+    "browserless": "^5.4.1",
+    "comfy.js": "^1.0.10",
+    "dotenv": "^8.0.0",
+    "html-get": "^2.2.4",
+    "puppeteer": "^1.17.0",
+    "unfluff": "^3.2.0"
+  }
+}
