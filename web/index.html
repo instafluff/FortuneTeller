@@ -1,0 +1,333 @@
+<html>
+  <head>
+    <title>Fortune Teller</title>
+    <link href="https://fonts.googleapis.com/css?family=Bubblegum+Sans" rel="stylesheet">
+    <script src="pinkfluffyunicorn.min.js"></script>
+  </head>
+  <body>
+    <div id="unicorn-display"></div>
+    <audio id="audio" controls="" style="visibility: hidden;">
+      <source id="source" type="audio/wav">
+    </audio>
+    <script>
+      const params = new URLSearchParams( location.search );
+      let isMain = true;
+      let isShowingTheThings = false;
+      let resetTimer = null;
+
+      let ads = [
+        "Is your relationship worth fighting for?  Find out with a Free Tarot Reading. Have a wish? Make it now.",
+        "Type exclamation help for more info",
+        "Don't forget to checkout FluffKea for all your comfy needs! exclamation comfy",
+        "Be a Comfy Sponsor! The best way to support the stream financially and guarantee a good future! exclamation comfysponsor",
+        "Want to learn real magic? Become a mug mage with the Comfy Mug Chef's spellbook. Type exclamation cookbook to know more",
+        "Psychic fair closed due to unforeseen circumstances.",
+        "Look for Fluffinex at your local store, the go to remedy for implosive diarrhea, symptoms include but are not limited to explosive diarrhea, profuse derping, itchiness, the wiggles, meowing and death, if any of these symptoms persist, contact your doctor.",
+        "Warning, this horoscope will self destruct 15 seconds after prediction.",
+        "I'm actually a skilled mind-reader. I know what you're thinking. You don't believe me.",
+        "Thanks for using comfymistery, if you want more please drop a Mug cake",
+        "Forecast for today: It'll be pouring playful pups and fluffy kittens with a chance of rainbows.",
+        "Remember. Subscribe to comfy sponsors for a good future!"
+      ];
+
+      const zodiacSigns = {
+        "aries": "Aries",
+        "taurus": "Taurus",
+        "gemini": "Gemini",
+        "cancer": "Cancer",
+        "leo": "Leo",
+        "virgo": "Virgo",
+        "libra": "Libra",
+        "scorpio": "Scorpio",
+        "sagittarius": "Sagittarius",
+        "capricorn": "Capricorn",
+        "aquarius": "Aquarius",
+        "pisces": "Pisces"
+      }
+
+      async function getHoroscope( user, sign ) {
+        sign = sign.toLowerCase();
+        if( zodiacSigns[ sign ] ) {
+          return await fetch( `http://localhost:1111/horoscope?user=${user}&sign=${sign}` )
+            .then( r => r.json() );
+        }
+      }
+
+      var counter = 0;
+      function getRandomInt( number ) {
+        return Math.floor( number * Math.random() );
+      }
+
+      function stopParticles( name, time = 2000 ) {
+        setTimeout( () => {
+          Unicorn.RemoveParticles( name );
+        }, time );
+      }
+      //
+      // function launchFirework( imageOverride = "" ) {
+      //   counter++;
+      //   let id = counter;
+      //   let spawnX = getRandomInt( 1280 );
+      //   let spawnY = 720 + getRandomInt( 400 );
+      //   Unicorn.AddParticles( "FireworkTrail" + id, {
+      //     blendMode: PIXI.BLEND_MODES.COLOR,
+      //     shape: "circle",
+      //     startColor: "#6E9887",
+      //     endColor: "#E06C9F",
+      //     intensity: 100, // Scale from 1 - 10
+      //     minSpeed: 0.0,
+      //     maxSpeed: 0.01,
+      //     gravityX: 0,
+      //     gravityY: 10,//3.5,
+      //     flySpeed: 0.75,
+      //     fadeOut: true,
+      //     decay: 0.5, // Scale from 0 - 10
+      //     image: imageOverride || "assets/kaboomtrail.png"
+      //   }, spawnX, spawnY );
+      //   setTimeout( () => {
+      //     Unicorn.PlaySound( "firework", {
+      //       volume: 0.1
+      //     } );
+      //     let explosionY = spawnY - 0.75 * 1000;
+      //     Unicorn.AddParticles( "Fireworks" + id, {
+      //       blendMode: PIXI.BLEND_MODES.LIGHTEN,
+      //       shape: "circle",
+      //       startColor: "#D7F9FF",
+      //       endColor: "#F283B6",
+      //       intensity: 200, // Scale from 1 - 10
+      //       minSpeed: 0.2,
+      //       maxSpeed: 0.5,
+      //       gravityX: 0,
+      //       gravityY: 3.5,
+      //       fadeOut: true,
+      //       decay: 2, // Scale from 0 - 10
+      //       image: imageOverride || "assets/kaboomtrail.png"
+      //     }, spawnX, explosionY );
+      //   }, 1000 );
+      //   // Unicorn.AddParticles( "Smoke" + counter, {
+      //   //   blendMode: PIXI.BLEND_MODES.SCREEN,
+      //   //   shape: "circle",
+      //   //   // lineDirection: 0,
+      //   //   // length: 400,
+      //   //   startColor: "#000000",
+      //   //   endColor: "#999999",
+      //   //   intensity: 20 * explosionScale, // Scale from 1 - 10
+      //   //   minSpeed: 0.0,
+      //   //   maxSpeed: 0.1,
+      //   //   gravityX: 0,
+      //   //   gravityY: -1,
+      //   //   growOverTime: true,
+      //   //   fadeOut: true,
+      //   //   decay: 1, // Scale from 0 - 10
+      //   //   image: imageOverride || undefined
+      //   // }, spawnX, spawnY );
+      //   stopParticles( "FireworkTrail" + id, 1000 );
+      //   stopParticles( "Fireworks" + id, 1150 );
+      // }
+
+
+      function launchSpirit( imageOverride = "" ) {
+        counter++;
+        let id = counter;
+        let spawnX = getRandomInt( 1280 );
+        let spawnY = 720 + getRandomInt( 400 );
+        Unicorn.AddParticles( "spirit" + id, {
+          blendMode: PIXI.BLEND_MODES.COLOR,
+          shape: "circle", // "cone", "line"
+          // lineDirection: -Math.PI / 2,
+          // length: 400,
+          // angle: Math.PI,
+          startColor: "#fffffff",
+          endColor: "#800080",
+          intensity: 100, // Scale from 1 - 10
+          minSpeed: 0.05,
+          maxSpeed: 0.05,
+          gravityX: 0,
+          gravityY: 1,
+          flySpeed: 0.25,
+          growOverTime: true,
+          fadeOut: true,
+          decay: 0.5, // Scale from 0 - 10
+        }, spawnX, spawnY );
+        stopParticles( "spirit" + id, 5000 );
+      }
+
+      function Init() {
+        // Add Initialization Here
+        Unicorn.Load( "crystalball", "assets/crystalball.png" );
+
+        // Unicorn.AddParticles( "windysnow", {
+        //   blendMode: PIXI.BLEND_MODES.DEFAULT,
+        //   shape: "line", // "cone", "line"
+        //   // lineDirection: 0,
+        //   length: 1920,
+        //   angle: Math.PI / 4,
+        //   // startColor: "#88ff00",
+        //   // endColor: "#ff0088",
+        //   startColor: "#ffffff",
+        //   endColor: "#ffffff",
+        //   intensity: 5, // Scale from 1 - 10
+        //   minSpeed: 0.1,
+        //   maxSpeed: 1.25,
+        //   decay: 5, // Scale from 0 - 10
+        // }, -640, 0);
+        // Unicorn.AddParticles( "ROOFISONFIRE", {
+        //   blendMode: PIXI.BLEND_MODES.DEFAULT,
+        //   shape: "line", // "cone", "line"
+        //   // lineDirection: 0,
+        //   // length: 400,
+        //   angle: Math.PI / 2,
+        //   startColor: "#ff0000",
+        //   endColor: "#FB8200",
+        //   intensity: 10000, // Scale from 1 - 10
+        //   minSpeed: 0.1,
+        //   maxSpeed: 0.25,
+        //   decay: 2, // Scale from 0 - 10
+        // }, 0, 0);
+        // Unicorn.AddParticles( "HEAVENLYCLOUDS", {
+        //   blendMode: PIXI.BLEND_MODES.COLOR,
+        //   shape: "line", // "cone", "line"
+        //   // lineDirection: 0,
+        //   // length: 400,
+        //   angle: -Math.PI / 2,
+        //   startColor: "#ffc0cb",
+        //   endColor: "#ffffff",
+        //   intensity: 10000, // Scale from 1 - 10
+        //   minSpeed: 0.05,
+        //   maxSpeed: 0.1,
+        //   gravityX: 0,
+        //   gravityY: 0.5,
+        //   fadeOut: true,
+        //   decay: 10, // Scale from 0 - 10
+        // }, 0, 720);
+
+
+          // setInterval( () => {
+          //   launchSpirit();
+          // }, 1000 );
+      }
+
+      function showTheThings() {
+        if( params.get( "background" ) ) {
+          isMain = false;
+          Unicorn.AddParticles( "PURPLECIRCLE", {
+            blendMode: PIXI.BLEND_MODES.COLOR,
+            shape: "circle", // "cone", "line"
+            // lineDirection: -Math.PI / 2,
+            // length: 400,
+            // angle: Math.PI,
+            startColor: "#800080",
+            endColor: "#ffffff",
+            intensity: 10000, // Scale from 1 - 10
+            minSpeed: 0.05,
+            maxSpeed: 0.06,
+            gravityX: 0,
+            gravityY: 0,
+            fadeOut: true,
+            decay: 10, // Scale from 0 - 10
+          }, 400, 300);
+        }
+        else {
+          let crystalball = Unicorn.AddOverlay( "crystalball", "crystalball", 200, 100 );
+          crystalball.scale = { x: 0.5, y: 0.5 };
+          Unicorn.AddParticles( "PURPLECIRCLE", {
+            blendMode: PIXI.BLEND_MODES.COLOR,
+            shape: "circle", // "cone", "line"
+            // lineDirection: -Math.PI / 2,
+            // length: 400,
+            // angle: Math.PI,
+            startColor: "#fffffff",
+            endColor: "#800080",
+            intensity: 100, // Scale from 1 - 10
+            minSpeed: 0.05,
+            maxSpeed: 0.15,
+            gravityX: 0,
+            gravityY: -1,
+            // flySpeed: 0.15,
+            // growOverTime: true,
+            fadeOut: true,
+            decay: 1, // Scale from 0 - 10
+          }, 420, 520);
+        }
+      }
+
+      function Update( timestamp, timeDiffInMs ) {
+        // Add Update Loop
+        // console.log( timestamp, timeDiffInMs );
+      }
+
+      async function OnChatCommand( user, command, message, flags, extra ) {
+      }
+
+      async function OnChatMessage( user, message, flags, self, extra ) {
+        // Handle Chat Messages
+        // HOROSCOPE!
+        if( extra.customRewardId === "97501d86-10e4-4e5c-b4ec-f4ecc71aac46" ) {
+          if( !isShowingTheThings ) {
+            showTheThings();
+            isShowingTheThings = true;
+          }
+          if( isMain ) {
+            let horoscope = await getHoroscope( user, message );
+            speakMessage( "Let's look into your future " + user, "Ivy", () => {
+              setTimeout( () => {
+                speakMessage( horoscope.text, "Ivy", () => {
+                  setTimeout( () => {
+                    speakMessage( ads[ getRandomInt( ads.length ) ], "Ivy" );
+                  }, 1000 );
+                } );
+              }, 1000 );
+            } );
+          }
+          if( resetTimer ) {
+            clearTimeout( resetTimer );
+          }
+          resetTimer = setTimeout( () => {
+            location.reload();
+          }, 60000 );
+        }
+      }
+
+      let onTTSFinished = null;
+      async function speakMessage( message, ttsVoice = "Amy", onFinish = null ) {
+        let speak = await fetch( `https://api.streamelements.com/kappa/v2/speech?voice=${ttsVoice}&text=` + encodeURIComponent( message.trim() ) );
+      	if( speak.status != 200 ) {
+      		// await speak.text();
+      		return;
+      	}
+
+        let mp3 = await speak.blob();
+        let blobUrl = URL.createObjectURL( mp3 );
+      	document.getElementById( "source" ).setAttribute( "src", blobUrl );
+      	let audio = document.getElementById( "audio" );
+      	audio.pause();
+      	audio.load();
+        audio.volume = 1;
+      	audio.play();
+        audio.onended = () => {
+          if( onTTSFinished ) {
+            onTTSFinished();
+            onTTSFinished = null;
+          }
+        };
+        onTTSFinished = onFinish;
+      }
+
+      window.addEventListener('load', () => {
+        Unicorn.Create( "unicorn-display", {
+          width: 1280,
+          height: 720,
+          // background: "#000000",// "transparent",
+          background: "transparent",
+          init: Init,
+          update: Update,
+          channel: "Instafluff",
+          onCommand: OnChatCommand,
+          onChat: OnChatMessage,
+          // screenWalls: false // Default: true
+          // gravity: { x: 0, y: 0.5 } // Default: { x: 0, y: 1 }
+        });
+      });
+    </script>
+  </body>
+</html>
