@@ -6,11 +6,62 @@ const fetch = require( "node-fetch" );
 const unfluff = require('unfluff');
 const ComfyJS = require("comfy.js");
 const ComfyWeb = require( "webwebweb" );
+const WordPOS = require('wordpos'), wordpos = new WordPOS();
+const fs = require( "fs" );
+let spookyNouns = fs.readFileSync( "spookynouns.txt", "utf-8" ).split( "\r\n" );
+let spookyAdjs = fs.readFileSync( "spookyadj.txt", "utf-8" ).split( "\r\n" );
+
+function getRandomInt( number ) {
+	return Math.floor( Math.random() * number );
+}
+
+function getPiecesOfShrimps( text ) {
+	return new Promise( ( resolve, reject ) => {
+		wordpos.getPOS( text, resolve );
+	});
+}
+
+ComfyWeb.APIs[ "/pos" ] = async ( qs ) => {
+	// return spookyNouns;
+	return await getPiecesOfShrimps( qs.text );
+};
+ComfyWeb.APIs[ "/horrorscope" ] = async ( qs ) => {
+  let horoscope = await getHoroscope( qs.sign );
+  let text = horoscope.text;
+  let pos = await getPiecesOfShrimps( text.toLowerCase() );
+  pos.nouns.forEach( noun => {
+	  if( pos.verbs.includes( noun ) ) return;
+	  if( Math.random() < 0.5 ) {
+		  let randomNoun = spookyNouns[ getRandomInt( spookyNouns.length ) ];
+		  text = text.replace( new RegExp( noun, 'g' ), randomNoun );
+	  }
+  });
+  pos.adjectives.forEach( adj => {
+	  if( Math.random() < 0.5 ) {
+		  let randomAdj = spookyAdjs[ getRandomInt( spookyAdjs.length ) ];
+		  text = text.replace( new RegExp( adj, 'g' ), randomAdj );
+	  }
+  });
+  if( qs.fast ) {
+    ComfyJS.Say( `@${qs.user} - ${zodiacSigns[ qs.sign ]}: ${text}` );
+  }
+  else {
+    setTimeout( () => {
+      ComfyJS.Say( `@${qs.user} - ${zodiacSigns[ qs.sign ]}: ${text}` );
+    }, 5000 );
+  }
+  return text;
+}
 ComfyWeb.APIs[ "/horoscope" ] = async ( qs ) => {
   let horoscope = await getHoroscope( qs.sign );
-  setTimeout( () => {
+  if( qs.fast ) {
     ComfyJS.Say( `@${qs.user} - ${zodiacSigns[ qs.sign ]}: ${horoscope.text}` );
-  }, 5000 );
+  }
+  else {
+    setTimeout( () => {
+      ComfyJS.Say( `@${qs.user} - ${zodiacSigns[ qs.sign ]}: ${horoscope.text}` );
+    }, 5000 );
+  }
   return horoscope;
 };
 ComfyWeb.APIs[ "/zodiac" ] = ( qs ) => {
@@ -19,7 +70,12 @@ ComfyWeb.APIs[ "/zodiac" ] = ( qs ) => {
     sign,
     zodiac: zodiacSigns[ sign ]
   };
-}
+};
+ComfyWeb.APIs[ "/horoscopes" ] = async ( qs, body ) => {
+	let horoscopes = await Promise.all( Object.keys( zodiacSigns ).map( sign => fetch( `http://localhost:8001/?url=https://www.astrology.com/horoscope/daily/today/${sign}.html` ).then( async r => Object.assign( { sign: sign, name: zodiacSigns[ sign ] }, await r.json() ) ) ) );
+	horoscopes.sort( ( a, b ) => b.vader.compound - a.vader.compound );
+	return horoscopes;
+};
 ComfyWeb.Run( 1111 );
 
 async function getHoroscope( sign ) {

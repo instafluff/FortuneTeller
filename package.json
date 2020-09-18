@@ -23,6 +23,7 @@
     "node-fetch": "^2.6.0",
     "puppeteer": "^1.17.0",
     "unfluff": "^3.2.0",
-    "webwebweb": "^1.1.6"
+    "webwebweb": "^1.1.6",
+    "wordpos": "^2.0.0"
   }
 }
