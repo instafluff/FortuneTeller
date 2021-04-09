@@ -33,13 +33,13 @@ ComfyWeb.APIs[ "/horrorscope" ] = async ( qs ) => {
 	  if( pos.verbs.includes( noun ) ) return;
 	  if( Math.random() < 0.5 ) {
 		  let randomNoun = spookyNouns[ getRandomInt( spookyNouns.length ) ];
-		  text = text.replace( new RegExp( noun, 'g' ), randomNoun );
+		  text = text.replace( new RegExp( `\\b${noun}\\b`, 'g' ), ` ${randomNoun} ` );
 	  }
   });
   pos.adjectives.forEach( adj => {
 	  if( Math.random() < 0.5 ) {
 		  let randomAdj = spookyAdjs[ getRandomInt( spookyAdjs.length ) ];
-		  text = text.replace( new RegExp( adj, 'g' ), randomAdj );
+		  text = text.replace( new RegExp( `\\b${adj}\\b`, 'g' ), ` ${randomAdj} ` );
 	  }
   });
   if( qs.fast ) {
@@ -54,7 +54,10 @@ ComfyWeb.APIs[ "/horrorscope" ] = async ( qs ) => {
 }
 ComfyWeb.APIs[ "/horoscope" ] = async ( qs ) => {
   let horoscope = await getHoroscope( qs.sign );
-  if( qs.fast ) {
+  if( qs.noTwitch ) {
+	  // skip!
+  }
+  else if( qs.fast ) {
     ComfyJS.Say( `@${qs.user} - ${zodiacSigns[ qs.sign ]}: ${horoscope.text}` );
   }
   else {
@@ -72,7 +75,7 @@ ComfyWeb.APIs[ "/zodiac" ] = ( qs ) => {
   };
 };
 ComfyWeb.APIs[ "/horoscopes" ] = async ( qs, body ) => {
-	let horoscopes = await Promise.all( Object.keys( zodiacSigns ).map( sign => fetch( `http://localhost:8001/?url=https://www.astrology.com/horoscope/daily/today/${sign}.html` ).then( async r => Object.assign( { sign: sign, name: zodiacSigns[ sign ] }, await r.json() ) ) ) );
+	let horoscopes = await Promise.all( Object.keys( zodiacSigns ).map( sign => fetch( `http://localhost:8001/?url=https://www.astrology.com/horoscope/daily/${sign}.html` ).then( async r => Object.assign( { sign: sign, name: zodiacSigns[ sign ] }, await r.json() ) ) ) );
 	horoscopes.sort( ( a, b ) => b.vader.compound - a.vader.compound );
 	return horoscopes;
 };
@@ -81,14 +84,19 @@ ComfyWeb.Run( 1111 );
 async function getHoroscope( sign ) {
   sign = sign.toLowerCase();
   if( zodiacSigns[ sign ] ) {
-    let html = await fetch( `https://www.astrology.com/horoscope/daily/today/${sign}.html` )
+    let html = await fetch( `https://www.astrology.com/horoscope/daily/${sign}.html` )
       .then( r => r.text() );
     var data = unfluff( html );
+	// console.log( data );
+	let parts = html.split( `<div id="content" class="grid-md-c-s2">` );
+	let horoscope = parts[ 1 ].split( "</div>" )[ 0 ].replace( "<p>", "" ).replace( "</p>", "" );
+	// console.log( horoscope );
     return {
       title: data.title,
       softTitle: data.softTitle,
       date: data.date,
-      text: data.text.split("\n")[ 0 ]
+	  author: data.author,
+      text: horoscope + " - Horoscope " + data.author[ 0 ] + " (astrology.com)"//data.text.split("\n")[ 0 ]
     };
   }
   return {};
