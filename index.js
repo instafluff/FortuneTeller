@@ -2,6 +2,7 @@ require("dotenv").config();
 
 'use strict'
 
+const striptags = require( "striptags" );
 const fetch = require( "node-fetch" );
 const unfluff = require('unfluff');
 const ComfyJS = require("comfy.js");
@@ -96,7 +97,7 @@ async function getHoroscope( sign ) {
       softTitle: data.softTitle,
       date: data.date,
 	  author: data.author,
-      text: horoscope + " - Horoscope " + data.author[ 0 ] + " (astrology.com)"//data.text.split("\n")[ 0 ]
+      text: striptags( horoscope ) + " - Horoscope " + data.author[ 0 ] + " (astrology.com)"//data.text.split("\n")[ 0 ]
     };
   }
   return {};
