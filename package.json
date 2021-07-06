@@ -20,7 +20,7 @@
     "browserless": "^5.4.1",
     "comfy.js": "^1.0.10",
     "dotenv": "^8.0.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "puppeteer": "^1.17.0",
     "striptags": "^3.2.0",
     "unfluff": "^3.2.0",
