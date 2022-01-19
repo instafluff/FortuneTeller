@@ -88,16 +88,17 @@ async function getHoroscope( sign ) {
     let html = await fetch( `https://www.astrology.com/horoscope/daily/${sign}.html` )
       .then( r => r.text() );
     var data = unfluff( html );
-	// console.log( data );
-	let parts = html.split( `<div id="content" class="grid-md-c-s2">` );
-	let horoscope = parts[ 1 ].split( "</div>" )[ 0 ].replace( "<p>", "" ).replace( "</p>", "" );
+	console.log( data );
+	// let parts = html.split( `<div id="content" class="grid-md-c-s2">` );
+	// let horoscope = parts[ 1 ].split( "</div>" )[ 0 ].replace( "<p>", "" ).replace( "</p>", "" );
 	// console.log( horoscope );
     return {
       title: data.title,
       softTitle: data.softTitle,
       date: data.date,
-	  author: data.author,
-      text: striptags( horoscope ) + " - Horoscope " + data.author[ 0 ] + " (astrology.com)"//data.text.split("\n")[ 0 ]
+	    author: data.author,
+      text: data.text + " - Horoscope " + data.author[ 0 ] + " (astrology.com)"//data.text.split("\n")[ 0 ]
+      // text: striptags( horoscope ) + " - Horoscope " + data.author[ 0 ] + " (astrology.com)"//data.text.split("\n")[ 0 ]
     };
   }
   return {};
