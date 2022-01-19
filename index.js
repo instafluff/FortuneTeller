@@ -88,7 +88,7 @@ async function getHoroscope( sign ) {
     let html = await fetch( `https://www.astrology.com/horoscope/daily/${sign}.html` )
       .then( r => r.text() );
     var data = unfluff( html );
-	console.log( data );
+	// console.log( data );
 	// let parts = html.split( `<div id="content" class="grid-md-c-s2">` );
 	// let horoscope = parts[ 1 ].split( "</div>" )[ 0 ].replace( "<p>", "" ).replace( "</p>", "" );
 	// console.log( horoscope );
